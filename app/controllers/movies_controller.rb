@@ -7,8 +7,11 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @sort = params[:sorting] if Movie.attribute_names.include? params[:sorting]
-    @movies = @sort.nil? ? Movie.all : Movie.find(:all, :order => @sort)
+    @movies = Movie.scoped  # Get all records, but as a relation, not an array a la .all
+    if params[:sorting] && Movie.attribute_names.include?(params[:sorting])
+      @sort = params[:sorting]
+      @movies = @movies.order(params[:sorting])
+    end
   end
 
   def new
