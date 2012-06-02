@@ -9,9 +9,13 @@ class MoviesController < ApplicationController
   def index
     @movies = Movie.scoped  # Get all records, but as a relation, not an array a la .all
     @all_ratings = Movie.all_ratings
+    @filtered_ratings = params[:ratings] || {}
     if params[:sorting] && Movie.attribute_names.include?(params[:sorting])
       @sort = params[:sorting]
       @movies = @movies.order(params[:sorting])
+    end
+    if !@filtered_ratings.empty?
+      @movies = @movies.where(:rating  => @filtered_ratings.keys)
     end
   end
 
