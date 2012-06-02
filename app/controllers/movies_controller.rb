@@ -8,6 +8,7 @@ class MoviesController < ApplicationController
 
   def index
     @movies = Movie.scoped  # Get all records, but as a relation, not an array a la .all
+    @all_ratings = Movie.all_ratings
     if params[:sorting] && Movie.attribute_names.include?(params[:sorting])
       @sort = params[:sorting]
       @movies = @movies.order(params[:sorting])
