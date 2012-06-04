@@ -7,16 +7,25 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.scoped  # Get all records, but as a relation, not an array a la .all
-    @all_ratings = Movie.all_ratings
-    @filtered_ratings = params[:ratings] || {}
-    if params[:sorting] && Movie.attribute_names.include?(params[:sorting])
-      @sort = params[:sorting]
-      @movies = @movies.order(params[:sorting])
+
+    @all_ratings      = Movie.all_ratings # All ratings available
+    
+    @filtered_ratings = params[:ratings] || session[:ratings] # Ratings on which to filter
+    @filtered_ratings = {} if @filtered_ratings.nil?
+    @sort             = params[:sorting] || session[:sorting] # Sort sort sort
+    
+    @movies           = Movie.scoped  # Get all records, but as a Relation, not an array a la .all
+    # Sorting
+    if  @sort && Movie.attribute_names.include?(@sort)
+      @movies = @movies.order @sort
+      session[:sorting] = @sort
     end
-    if !@filtered_ratings.empty?
-      @movies = @movies.where(:rating  => @filtered_ratings.keys)
+    # Filtering
+    unless @filtered_ratings.empty?
+      @movies = @movies.where :rating => @filtered_ratings.keys 
+      session[:ratings] = @filtered_ratings
     end
+
   end
 
   def new
@@ -46,5 +55,6 @@ class MoviesController < ApplicationController
     flash[:notice] = "Movie '#{@movie.title}' deleted."
     redirect_to movies_path
   end
+
 
 end
